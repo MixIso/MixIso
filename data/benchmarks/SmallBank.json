@@ -1,0 +1,134 @@
+{
+  "templates": [
+    {
+      "name": "Balance",
+      "isolationLevel": "SERIALIZABLE",
+      "percentage": 0.2,
+      "params": ["N"],
+      "operations": [
+        {
+          "id": 1,
+          "type": "READ",
+          "key": "Account_C",
+          "params": "N"
+        },
+        {
+          "id": 2,
+          "type": "READ",
+          "key": "Savings_B",
+          "params": "N"
+        },
+        {
+          "id": 3,
+          "type": "READ",
+          "key": "Checking_B",
+          "params": "N"
+        }
+      ]
+    },
+    {
+      "name": "DepositChecking",
+      "isolationLevel": "SERIALIZABLE",
+      "percentage": 0.2,
+      "params": ["N"],
+      "operations": [
+        {
+          "id": 1,
+          "type": "READ",
+          "key": "Account_C",
+          "params": "N"
+        },
+        {
+          "id": 2,
+          "type": "UPDATE",
+          "key": "Checking_B",
+          "params": "N"
+        }
+      ]
+    },
+    {
+      "name": "TransactSavings",
+      "isolationLevel": "SERIALIZABLE",
+      "percentage": 0.2,
+      "params": ["N"],
+      "operations": [
+        {
+          "id": 1,
+          "type": "READ",
+          "key": "Account_C",
+          "params": "N"
+        },
+        {
+          "id": 2,
+          "type": "UPDATE",
+          "key": "Savings_B",
+          "params": "N"
+        }
+      ]
+    },
+    {
+      "name": "Amalgamate",
+      "isolationLevel": "SERIALIZABLE",
+      "percentage": 0.2,
+      "params": ["N1", "N2"],
+      "operations": [
+        {
+          "id": 1,
+          "type": "READ",
+          "key": "Account_C",
+          "params": "N1"
+        },
+        {
+          "id": 2,
+          "type": "READ",
+          "key": "Account_C",
+          "params": "N2"
+        },
+        {
+          "id": 3,
+          "type": "UPDATE",
+          "key": "Savings_B",
+          "params": "N1"
+        },
+        {
+          "id": 4,
+          "type": "UPDATE",
+          "key": "Checking_B",
+          "params": "N1"
+        },
+        {
+          "id": 5,
+          "type": "UPDATE",
+          "key": "Checking_B",
+          "params": "N2"
+        }
+      ]
+    },
+    {
+      "name": "WriteCheck",
+      "isolationLevel": "SERIALIZABLE",
+      "percentage": 0.2,
+      "params": ["N"],
+      "operations": [
+        {
+          "id": 1,
+          "type": "READ",
+          "key": "Account_C",
+          "params": "N"
+        },
+        {
+          "id": 2,
+          "type": "READ",
+          "key": "Savings_B",
+          "params": "N"
+        },
+        {
+          "id": 3,
+          "type": "UPDATE",
+          "key": "Checking_B",
+          "params": "N"
+        }
+      ]
+    }
+  ]
+}

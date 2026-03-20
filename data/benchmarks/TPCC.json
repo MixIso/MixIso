@@ -1,0 +1,182 @@
+{
+  "templates": [
+    {
+      "name": "NewOrder",
+      "isolationLevel": "SERIALIZABLE",
+      "percentage": 0.45,
+      "params": ["WID", "DID", "CID", "OID", "IID"],
+      "operations": [
+        {
+          "id": 1,
+          "type": "READ",
+          "key": "Warehouse_Inf",
+          "params": "WID"
+        },
+        {
+          "id": 2,
+          "type": "READ",
+          "key": "District_Inf",
+          "params": "DID"
+        },
+        {
+          "id": 3,
+          "type": "UPDATE",
+          "key": "District_N",
+          "params": "DID"
+        },
+        {
+          "id": 4,
+          "type": "READ",
+          "key": "Customer_Inf",
+          "params": "CID"
+        },
+        {
+          "id": 5,
+          "type": "WRITE",
+          "key": "Order_C",
+          "params": "OID"
+        },
+        {
+          "id": 6,
+          "type": "WRITE",
+          "key": "Order_Sta",
+          "params": "OID"
+        },
+        {
+          "id": 7,
+          "type": "UPDATE",
+          "key": "Stock_Qua",
+          "params": "IID"
+        },
+        {
+          "id": 8,
+          "type": "WRITE",
+          "key": "OrderLine_I",
+          "params": "OID"
+        },
+        {
+          "id": 9,
+          "type": "WRITE",
+          "key": "OrderLine_Del",
+          "params": "OID"
+        },
+        {
+          "id": 10,
+          "type": "WRITE",
+          "key": "OrderLine_Qua",
+          "params": "OID"
+        }
+      ]
+    },
+    {
+      "name": "Payment",
+      "isolationLevel": "SERIALIZABLE",
+      "percentage": 0.43,
+      "params": ["WID", "DID", "CID"],
+      "operations": [
+        {
+          "id": 1,
+          "type": "UPDATE",
+          "key": "Warehouse_YTD",
+          "params": "WID"
+        },
+        {
+          "id": 2,
+          "type": "UPDATE",
+          "key": "District_YTD",
+          "params": "DID"
+        },
+        {
+          "id": 3,
+          "type": "UPDATE",
+          "key": "Customer_Bal",
+          "params": "CID"
+        }
+      ]
+    },
+    {
+      "name": "OrderStatus",
+      "isolationLevel": "SERIALIZABLE",
+      "percentage": 0.04,
+      "params": ["CID", "OID"],
+      "operations": [
+        {
+          "id": 1,
+          "type": "READ",
+          "key": "Customer_Bal",
+          "params": "CID"
+        },
+        {
+          "id": 2,
+          "type": "READ",
+          "key": "Order_C",
+          "params": "OID"
+        },
+        {
+          "id": 3,
+          "type": "READ",
+          "key": "Order_Sta",
+          "params": "OID"
+        },
+        {
+          "id": 4,
+          "type": "READ",
+          "key": "OrderLine_I",
+          "params": "OID"
+        },
+        {
+          "id": 5,
+          "type": "READ",
+          "key": "OrderLine_Del",
+          "params": "OID"
+        },
+        {
+          "id": 6,
+          "type": "READ",
+          "key": "OrderLine_Qua",
+          "params": "OID"
+        }
+      ]
+    },
+    {
+      "name": "Delivery",
+      "isolationLevel": "SERIALIZABLE",
+      "percentage": 0.04,
+      "params": ["CID", "OID"],
+      "operations": [
+        {
+          "id": 1,
+          "type": "UPDATE",
+          "key": "Order_Sta",
+          "params": "OID"
+        },
+        {
+          "id": 2,
+          "type": "UPDATE",
+          "key": "OrderLine_Del",
+          "params": "OID"
+        },
+        {
+          "id": 3,
+          "type": "UPDATE",
+          "key": "Customer_Bal",
+          "params": "CID"
+        }
+      ]
+    },
+    {
+      "name": "StockLevel",
+      "isolationLevel": "SERIALIZABLE",
+      "percentage": 0.04,
+      "params": ["IID"],
+      "operations": [
+        {
+          "id": 1,
+          "type": "READ",
+          "key": "Stock_Qua",
+          "params": "IID"
+        }
+      ]
+    }
+  ]
+}

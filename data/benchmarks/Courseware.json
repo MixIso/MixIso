@@ -1,0 +1,104 @@
+{
+  "templates": [
+    {
+      "name": "register",
+      "isolationLevel": "SERIALIZABLE",
+      "percentage": 0.2,
+      "params": ["SID"],
+      "operations": [
+        {
+          "id": 1,
+          "type": "WRITE",
+          "key": "StudentSet_S",
+          "params": "SID"
+        }
+      ]
+    },
+    {
+      "name": "addCourse",
+      "isolationLevel": "SERIALIZABLE",
+      "percentage": 0.2,
+      "params": ["CID"],
+      "operations": [
+        {
+          "id": 1,
+          "type": "WRITE",
+          "key": "CourseSet_C",
+          "params": "CID"
+        }
+      ]
+    },
+    {
+      "name": "enrol",
+      "isolationLevel": "SERIALIZABLE",
+      "percentage": 0.2,
+      "params": ["SID", "CID"],
+      "operations": [
+        {
+          "id": 1,
+          "type": "READ",
+          "key": "StudentSet_S",
+          "params": "SID"
+        },
+        {
+          "id": 2,
+          "type": "READ",
+          "key": "CourseSet_C",
+          "params": "CID"
+        },
+        {
+          "id": 3,
+          "type": "WRITE",
+          "key": "EnrollmentRelation_S_C",
+          "params": ["SID", "CID"]
+        }
+      ]
+    },
+    {
+      "name": "remCourse",
+      "isolationLevel": "SERIALIZABLE",
+      "percentage": 0.2,
+      "params": ["SID", "CID"],
+      "operations": [
+        {
+          "id": 1,
+          "type": "READ",
+          "key": "EnrollmentRelation_S_C",
+          "params": ["SID", "CID"]
+        },
+        {
+          "id": 2,
+          "type": "UPDATE",
+          "key": "CourseSet_C",
+          "params": "CID"
+        }
+      ]
+    },
+    {
+      "name": "query",
+      "isolationLevel": "SERIALIZABLE",
+      "percentage": 0.2,
+      "params": ["SID", "CID"],
+      "operations": [
+        {
+          "id": 1,
+          "type": "READ",
+          "key": "StudentSet_S",
+          "params": "SID"
+        },
+        {
+          "id": 2,
+          "type": "READ",
+          "key": "CourseSet_C",
+          "params": "CID"
+        },
+        {
+          "id": 3,
+          "type": "READ",
+          "key": "EnrollmentRelation_S_C",
+          "params": ["SID", "CID"]
+        }
+      ]
+    }
+  ]
+}
