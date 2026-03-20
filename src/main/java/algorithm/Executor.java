@@ -81,7 +81,7 @@ public class Executor {
 	private final ExecutionStrategy strategy;
 	private final Object godLock;
 	
-	// ThreadLocal 为每个线程分配数据中心
+	// ThreadLocal assigns a data center to each thread
 	private final ThreadLocal<Integer> threadDataCenterMap = new ThreadLocal<>();
 
 	private Executor(int dcCount, int minRttMs, int maxRttMs, ExecutionStrategy strategy) {
@@ -285,7 +285,7 @@ public class Executor {
 								List<Long> latencies,
 								AtomicLong committed,
 								AtomicLong aborted) {
-		// 为当前线程分配数据中心
+		// Assign a data center to the current thread
 		threadDataCenterMap.set(assignedDataCenterId);
 
 		List<ProgramInstance> transactions = session.getInstances();
@@ -314,7 +314,7 @@ public class Executor {
 			}
 		}
 
-		// 清理 ThreadLocal
+		// Clear ThreadLocal
 		threadDataCenterMap.remove();
 	}
 
@@ -332,7 +332,7 @@ public class Executor {
 	}
 
 	private boolean executeTransaction(ProgramInstance txn) throws InterruptedException {
-		// 获取当前线程分配的数据中心
+		// Get the data center assigned to the current thread
 		Integer dcId = threadDataCenterMap.get();
 		if (dcId == null) {
 			return false;
@@ -346,12 +346,12 @@ public class Executor {
 			sts = logicalClock.incrementAndGet();
 		}
 
-		// 事务缓冲区
+		// Transaction buffer
 		Map<String, Integer> buffer = new HashMap<>();
 		Set<String> readSet = new HashSet<>();
 		Set<String> writeSet = new HashSet<>();
 
-		// 执行操作
+		// Execute operations
 		for (StaticOperation op : txn.getOperations()) {
 			String key = op.getKey();
 			if (op.isWriteOp()) {
@@ -359,10 +359,10 @@ public class Executor {
 				buffer.put(key, syntheticValue(key, logicalClock.get()));
 			} else {
 				readSet.add(key);
-				// 内部读：先检查 buffer
+				// Internal read: check buffer first
 				Integer bufferedValue = readInt(buffer, key);
 				if (bufferedValue == null) {
-					// 外部读：读取时间戳 < sts 的最新版本
+					// External read: fetch the latest version with timestamp < sts
 					readExt(dataCenter, key, sts);
 				}
 			}
@@ -370,23 +370,23 @@ public class Executor {
 
 		long commitTs;
 		if (needsConflictCheck(effectiveLevel, readSet, writeSet)) {
-			// 冲突检测集合非空，向其他节点请求冲突检测（1 RTT）
+			// Conflict check set is non-empty; request conflict checks from other nodes (1 RTT)
 			commitTs = requestConflictCheckFromPeers(txId, dcId, effectiveLevel, sts, readSet, writeSet);
 		} else {
-			// 冲突检测集合为空，直接本地提交
+			// Conflict check set is empty; commit locally directly
 			commitTs = directLocalCommit(txId, dcId, sts, readSet, writeSet);
 		}
 		if (commitTs < 0L) {
 			return false;
 		}
 
-		// 本地立刻应用写入
+		// Apply writes locally immediately
 		dataCenter.applyWrites(new HashMap<>(buffer), commitTs);
 
-		// 异步传播更新到其他副本
+		// Asynchronously propagate updates to other replicas
 		propagateToOtherReplicasAsync(dcId, txId, buffer, commitTs);
 
-		// 等待1个RTT使更新到达其他节点
+		// Wait for 1 RTT so updates can reach other nodes
 		sleepMillis(randomRttMs());
 
 		return true;
@@ -425,10 +425,10 @@ private boolean needsConflictCheck(IsolationLevel level,
 									   long sts,
 									   Set<String> readSet,
 									   Set<String> writeSet) throws InterruptedException {
-		// 请求 -> 其他节点
+		// Request -> other nodes
 		sleepMillis(randomRttMs());
 
-		// 收集来自所有其他节点的冲突检测结果
+		// Collect conflict check results from all other nodes
 		boolean conflictDetected = false;
 		for (DataCenterNode dc : dataCenters) {
 			if (dc.getId() == originDcId) {
@@ -440,14 +440,14 @@ private boolean needsConflictCheck(IsolationLevel level,
 			}
 		}
 
-		// 回复 <- 其他节点
+		// Reply <- other nodes
 		sleepMillis(randomRttMs());
 
 		if (conflictDetected) {
 			return -1L; // abort
 		}
 
-		// 无冲突，在原始节点本地提交
+		// No conflict; commit locally at the origin node
 		synchronized (godLock) {
 			long cts = logicalClock.incrementAndGet();
 			commitLog.add(new CommitRecord(txId, sts, cts, readSet, writeSet, originDcId));
@@ -464,7 +464,7 @@ private boolean needsConflictCheck(IsolationLevel level,
 									  Set<String> readSet,
 									  Set<String> writeSet) {
 		synchronized (godLock) {
-			// 检查所有sts之后提交的事务
+			// Check all transactions committed after sts
 			for (CommitRecord record : commitLog) {
 				if (record.getCts() <= sts) {
 					continue;
@@ -488,12 +488,12 @@ private boolean needsConflictCheck(IsolationLevel level,
 		}
 	}
 
-	// 从缓冲区读取指定的键
+	// Read the specified key from the buffer
 	private Integer readInt(Map<String, Integer> buffer, String key) {
 		return buffer.get(key);
 	}
 
-	// 从存储读取 timestamp < sts 的最新版本
+	// Read the latest version with timestamp < sts from storage
 	private int readExt(DataCenterNode dataCenter, String key, long sts) {
 		long visibleTs = Math.max(0L, sts - 1L);
 		return dataCenter.readVisibleValue(key, visibleTs);
@@ -526,7 +526,7 @@ private boolean needsConflictCheck(IsolationLevel level,
 	private boolean checkNoConflict(Set<Long> visibleToT, long cts, Set<String> readSet, Set<String> writeSet) {
 		for (CommitRecord record : commitLog) {
 			if (!visibleToT.contains(record.getTxId())) {
-				// 检查写-写冲突
+				// Check write-write conflicts
 				boolean wwConflict = record.getWriteSet().stream()
 						.anyMatch(writeSet::contains);
 				if (wwConflict) {
@@ -593,7 +593,7 @@ private boolean needsConflictCheck(IsolationLevel level,
 			return;
 		}
 
-		// 异步传播到其他副本
+		// Asynchronously propagate to other replicas
 		for (DataCenterNode targetDc : dataCenters) {
 			if (targetDc.getId() == originDcId) {
 				continue;

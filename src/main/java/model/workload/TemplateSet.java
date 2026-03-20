@@ -3,7 +3,7 @@ package model.workload;
 import java.util.ArrayList;
 import java.util.List;
 
-// 添加Jackson ObjectMapper依赖
+// Add Jackson ObjectMapper dependency
 
 
 public class TemplateSet {
